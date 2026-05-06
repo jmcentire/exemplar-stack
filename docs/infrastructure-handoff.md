@@ -44,6 +44,14 @@ release pass:
 | `witness` | `v0.1.0` | Human-in-the-loop decisions and two-person approval. |
 | `baton` | `v0.3.3` | Circuit orchestration, adapter control, taint scanning, canary routing. |
 | `ledger` | `v0.2.2` | Schema registry and data obligation manager. |
+| `arbiter` | `v0.2.1` | Access auditing, consistency analysis, blast-radius classification, and trust enforcement. |
+| `chronicler` | `v0.3.0` | Event collection and story assembly from operational signals. |
+| `stigmergy` | `v0.1.2` | Pattern discovery over work artifacts, stories, and coordination signals. |
+| `cartographer` | `v0.1.2` | Stack adoption, discovery, and compatibility reporting. |
+| `constrain` | `v0.5.0` | Structured problem interview and artifact synthesis. |
+| `pact` | `v0.14.1` | Contract-first decomposition, executable tests, and agent implementation. |
+| `apprentice` | `v0.3.2` | Model distillation, routing, and quality-gated local inference. |
+| `signet` | public Rust stack | Sovereign vault, credentials, proofs, and agent authority policy. |
 | `stack-smoke` | `v0.1.0` | Cross-component smoke harness scaffold. |
 | `exemplar-stack` | `v0.1.0+` | Architecture map and coordination docs. |
 | `reeve` | private, deployed | First production integration host. |
@@ -58,11 +66,19 @@ hosts.
 
 | Component | Responsibility | Operational boundary |
 | --- | --- | --- |
+| Constrain | Intent capture and stack artifact synthesis. | Owns interviews and exports initial Pact, Ledger, Arbiter, Baton, and Sentinel scaffolds. |
+| Pact | Contract-first build pipeline. | Owns decomposition, interface contracts, executable tests, and agent implementation gates. |
 | Reeve | Operator-facing automation and first full integration host. | Owns business workflows, route handlers, operator UI, and first production proof. |
 | Baton | Circuit and adapter control plane. | Owns traffic routing, health, canary routing, taint scanning, and egress config consumption. |
 | Ledger | Schema and obligation registry. | Owns field classifications, retention/masking/export obligations, and downstream config generation. |
+| Arbiter | Trust and blast-radius analysis. | Owns access auditing, observed-vs-declared consistency checks, trust scoring, and blast-radius findings. |
 | Sentinel | Attribution and severity enforcement. | Owns PACT-key attribution and enforcement severity for data movement. |
 | Tessera | Audit evidence and hash-chain integrity. | Owns append-only evidence and integrity checks for operational actions. |
+| Chronicler | Event collection and story assembly. | Owns correlation of logs, spans, webhooks, and incidents into bounded operational stories. |
+| Stigmergy | Organizational pattern discovery. | Owns cross-source signal processing for coordination gaps, dependency risks, and structural patterns. |
+| Apprentice | Model distillation and quality-gated routing. | Owns when repeated model tasks move from frontier APIs to local models and when they fall back. |
+| Signet | Credential, proof, and authority substrate. | Owns scoped credentials, selective disclosure, vault-backed authorization, and agent authority policy. |
+| Cartographer | Adoption and compatibility discovery. | Owns scans that draft stack artifacts and report missing or incompatible integration surfaces. |
 | Aegis | Resource-budget primitive. | Owns timeout/fallback semantics around blocking calls. |
 | Covenant | Contract validation primitive. | Owns runtime shape validation and violation policy. |
 | Vigil | Pattern-divergence detector. | Owns anomaly detection and forensic query over event streams. |
@@ -74,9 +90,46 @@ The important boundary is that Reeve uses these controls; it should not be the
 permanent owner of them. Reeve was the proving ground. The extracted repos are
 the reusable stack surface.
 
+## Lifecycle View
+
+The tools cover the full lifecycle, not only runtime operations:
+
+| Phase | Tools | Capability |
+| --- | --- | --- |
+| Discover existing systems | Cartographer | Scan code/backends and draft missing stack artifacts. |
+| Capture intent | Constrain | Turn problem interviews into component maps, trust policies, schema hints, and downstream scaffolds. |
+| Build against contracts | Pact, Covenant | Decompose, generate contracts/tests, validate runtime payloads, and prevent interface drift. |
+| Declare data obligations | Ledger | Classify fields and export masking, taint, retention, and severity rules. |
+| Route and control services | Baton, Aegis | Control egress, canaries, health, and per-call budgets. |
+| Establish authority | Signet, Witness | Scope credentials/proofs and route human approval. |
+| Observe and learn | Chronicler, Vigil, Stigmergy, Arbiter, Sentinel | Assemble stories, detect anomalies/patterns, compute trust/blast radius, and attribute production failures. |
+| Emergency response | Scram, Tessera | Trigger kill paths and preserve tamper-evident evidence. |
+| Cost/quality optimization | Apprentice | Distill repeatable frontier-model tasks into local models under measured quality gates. |
+| Verify composition | Stack Smoke, Reeve smoke endpoints | Prove the stack works across component boundaries. |
+
 ## The Operational Invariants
 
-### 1. Blocking Work Must Be Budgeted
+### 1. Intent Must Become Machine-Readable Before Implementation
+
+AI-assisted infrastructure fails when intent lives only in chat transcripts or
+tribal memory. The invariant is: architecture starts as structured artifacts.
+
+**Enforced by:** `cartographer`, `constrain`, `pact`
+
+**Meaning in practice:**
+
+- Cartographer discovers what an existing system already contains.
+- Constrain interviews engineers and exports component maps, trust policies,
+  Ledger hints, Pact tasks, and Baton scaffolds.
+- Pact decomposes work into contracts and tests before agents implement.
+
+**Why it matters for AI systems:**
+
+Agents need stable artifacts more than they need long explanations. These tools
+turn intent into files that can be reviewed, tested, regenerated, and consumed
+by downstream automation.
+
+### 2. Blocking Work Must Be Budgeted
 
 Any call to a vendor, model, database, subprocess, or peer service can hang,
 stall, or consume more resources than the operator intended. The invariant is:
@@ -97,7 +150,7 @@ AI agents tend to compose calls dynamically. Without budgets, an agent can turn
 a slow external dependency into a saturated worker pool. With `aegis`, the agent
 or caller must make the operational cost explicit at the boundary.
 
-### 2. Cross-Boundary Data Must Match a Contract
+### 3. Cross-Boundary Data Must Match a Contract
 
 Payloads crossing trust boundaries need more than TypeScript types. They need
 runtime validation, policy, and drift detection for non-TypeScript consumers.
@@ -117,7 +170,7 @@ Agents need machine-readable structure. A contract lets an agent generate,
 validate, and repair a payload without a human translating prose into shape.
 The runtime still validates because agent confidence is not a safety boundary.
 
-### 3. Data Obligations Must Be Declared Once and Propagated
+### 4. Data Obligations Must Be Declared Once and Propagated
 
 Teams should not hand-maintain separate rules for masking, taint detection,
 retention, classification, and egress. The invariant is: the schema registry is
@@ -140,7 +193,28 @@ Agents need to know what data they can move, summarize, persist, or reveal. A
 machine-readable obligation registry prevents every agent prompt from becoming
 the policy source of truth.
 
-### 4. Egress and Service Topology Must Be Controllable
+### 5. Access, Trust, and Blast Radius Must Be Computed From Evidence
+
+Declared policy is not enough; the stack needs to compare declarations against
+observed behavior. The invariant is: access and trust decisions should be based
+on evidence, not only on intent.
+
+**Enforced by:** `arbiter`
+
+**Meaning in practice:**
+
+- Arbiter consumes spans and access graphs outside the hot path.
+- It checks whether nodes touched data they were allowed to touch.
+- It compares what components claim against what adapters observed.
+- It computes trust scores, taint state, and blast-radius findings.
+
+**Why it matters for AI systems:**
+
+Agents can generate plausible declarations that are still wrong. Arbiter gives
+operators a separate evidence loop: what happened, what was allowed, and what
+changed the blast radius.
+
+### 6. Egress and Service Topology Must Be Controllable
 
 When a service or integration misbehaves, the stack needs routing authority:
 pause, canary, mask, fail over, or collapse to a mock.
@@ -160,7 +234,7 @@ AI workflows often depend on multiple external services. Baton gives operators
 a control plane for those edges instead of asking an agent to improvise outage
 handling inside business logic.
 
-### 5. Routine Health Must Be Observable and Fail Closed
+### 7. Routine Health Must Be Observable and Fail Closed
 
 The stack needs a current view of whether critical components are healthy and
 whether the system should run normally, pause, or become read-only.
@@ -179,7 +253,110 @@ whether the system should run normally, pause, or become read-only.
 Agents should not make write decisions during degraded modes. Stack mode gives
 callers a simple operational signal: safe, paused, manual-only, or read-only.
 
-### 6. Pattern Drift Must Be Detectable Below Alarm Thresholds
+### 8. Events Must Become Stories Before They Become Lessons
+
+Raw logs and spans are necessary but not sufficient. The invariant is:
+operational learning should happen over correlated stories, not isolated log
+lines.
+
+**Enforced by:** `chronicler`
+
+**Meaning in practice:**
+
+- Chronicler ingests webhooks, OTLP spans, log files, and Sentinel incidents.
+- It assembles request, service, and journey stories with bounded memory and
+  configurable timeouts.
+- It emits completed stories to pattern consumers such as Stigmergy, Apprentice,
+  and anomaly systems.
+
+**Why it matters for AI systems:**
+
+Agents reason better over causal narratives than raw event streams. Chronicler
+turns operational exhaust into bounded context that can be audited, summarized,
+and learned from.
+
+### 9. Organizational Patterns Must Be Detectable Across Tools
+
+Incidents often come from coordination failures rather than code defects. The
+invariant is: the stack should notice structural patterns across work systems.
+
+**Enforced by:** `stigmergy`
+
+**Meaning in practice:**
+
+- Stigmergy ingests GitHub, Linear, Slack, and correlated story signals.
+- It uses an adaptive mesh to form, reinforce, and decay pattern categories.
+- It surfaces coordination gaps, knowledge silos, dependency risks, and other
+  cross-source findings.
+
+**Why it matters for AI systems:**
+
+AI assistants need more than production telemetry; they need organizational
+context. Stigmergy gives them pattern signals about how work actually moves
+through the team.
+
+### 10. Existing Systems Must Be Discoverable Before They Are Governed
+
+Stack adoption should not start with hand-authored perfect YAML. The invariant
+is: existing services can be scanned, drafted, and compatibility-checked before
+the team commits to enforcement.
+
+**Enforced by:** `cartographer`
+
+**Meaning in practice:**
+
+- Cartographer scans source code and optional live backends.
+- It drafts artifacts for Constrain, Pact, Ledger, Arbiter, Baton, and Sentinel.
+- It reports missing or incompatible stack requirements in CI-friendly form.
+
+**Why it matters for AI systems:**
+
+Agents onboarding a service need a map of what exists before they can safely
+change it. Cartographer gives them a discovery surface instead of asking them
+to infer architecture from scattered files.
+
+### 11. Model Cost Savings Must Be Quality-Gated
+
+Replacing a frontier model with a cheaper local model is only safe when the
+local model earns trust through measured correlation. The invariant is: model
+routing changes are evidence-based.
+
+**Enforced by:** `apprentice`
+
+**Meaning in practice:**
+
+- Apprentice collects frontier-model outputs as training/evaluation data.
+- It compares local and remote results during reinforcement phases.
+- Traffic shifts only when rolling quality thresholds hold.
+- Regression sends traffic back to a safer phase.
+
+**Why it matters for AI systems:**
+
+The stack can reduce cost without turning quality into a guess. Agents and
+operators get a measured route between frontier capability and local efficiency.
+
+### 12. Credentials and Authority Must Be Scoped and Auditable
+
+Agents should not hold broad secrets or act as unbounded representatives of the
+user. The invariant is: credentials, proofs, and authority are scoped,
+revocable, and auditable.
+
+**Enforced by:** `signet`
+
+**Meaning in practice:**
+
+- Signet stores root credentials in a vault-backed trust hierarchy.
+- Agents request scoped capabilities and selective disclosures.
+- Proofs and credential use are auditable and revocable.
+- Reeve uses Signet-shaped authority boundaries for sensitive integrations.
+
+**Why it matters for AI systems:**
+
+An AI agent needs enough authority to act, but not enough to become the root of
+trust. Signet makes authority explicit instead of embedding secrets in prompts
+or process environments.
+
+### 13. Pattern Drift Must Be Detectable Below Alarm Thresholds
 
 Not every incident starts as a single obvious failure. Many show up as unusual
 clusters: timeouts, repeated contract violations, or tenant-specific outliers.
@@ -198,7 +375,7 @@ clusters: timeouts, repeated contract violations, or tenant-specific outliers.
 Model and tool behavior can drift gradually. Vigil catches "this pattern is
 weird now" before it becomes a declared outage or customer-visible failure.
 
-### 7. Catastrophic Actions Need an Emergency Authority Path
+### 14. Catastrophic Actions Need an Emergency Authority Path
 
 Some failures require immediate shutdown, quarantine, rollback, or read-only
 mode. The invariant is: emergency action cannot depend on ad-hoc operator
@@ -221,7 +398,7 @@ If an AI workflow starts causing cross-tenant leakage, runaway writes, or
 classification fail-closed cascades, the system needs a kill path that is faster
 than a design meeting.
 
-### 8. Human Judgment Must Be a First-Class Primitive
+### 15. Human Judgment Must Be a First-Class Primitive
 
 Some decisions should not be automated. The invariant is: human approval,
 rationale, and second-operator requirements are infrastructure, not UI glue.
@@ -242,7 +419,7 @@ rationale, and second-operator requirements are infrastructure, not UI glue.
 Witness gives agents a safe way to stop and ask, and gives operators a durable
 record of why a human allowed or rejected an action.
 
-### 9. Cross-Component Behavior Must Be Tested as a Flow
+### 16. Cross-Component Behavior Must Be Tested as a Flow
 
 Unit tests prove components. Smoke tests prove operational composition.
 
@@ -266,6 +443,12 @@ Cross-stack smoke tests make that coherence testable rather than assumed.
 ### Request Path
 
 ```text
+Cartographer / Constrain / Pact
+  |
+  |-- discover existing system
+  |-- synthesize stack artifacts
+  |-- generate contracts and tests
+  v
 Operator or inbound event
   |
   v
@@ -273,13 +456,16 @@ Reeve
   |-- wraps external calls through aegis
   |-- validates egress and ingress through covenant
   |-- consults Ledger-derived obligations for data handling
-  |-- emits operational traces and audit evidence
+  |-- emits operational traces, stories, and audit evidence
+  |-- uses Signet-scoped credentials and authority proofs
+  |-- routes repeatable model tasks through Apprentice where appropriate
   |
   v
 Baton adapters
   |-- route or pause traffic
   |-- apply egress masking from Ledger
   |-- scan for taint fingerprints
+  |-- forward observed behavior to Arbiter
   |
   v
 Sentinel / Tessera / peer systems
@@ -292,6 +478,8 @@ Sentinel / Tessera / peer systems
 - Baton unhealthy route: traffic can pause, roll back, or collapse to a safe
   alternate path.
 - Ledger obligation conflict: schema validation fails before runtime.
+- Arbiter finding: trust/blast-radius state changes and can gate later rollout
+  or require human review depending on policy.
 
 ### Deploy Path
 
@@ -331,7 +519,13 @@ Component emits traces / violations / health
   |
   +--> Reeve stack-health derives current mode
   |
+  +--> Chronicler assembles stories
+  |       |
+  |       +--> Stigmergy detects organizational/workflow patterns
+  |
   +--> Vigil detects pattern anomalies
+  |
+  +--> Arbiter updates trust and blast-radius findings
   |
   +--> Alarms fire on declared predicates
   |
@@ -378,11 +572,23 @@ The stack is AI-friendly because it gives agents machine-readable constraints
 and safe operating handles:
 
 - **Contracts:** agents can inspect payload shapes and generate compliant data.
+- **Specification artifacts:** agents can work from component maps, trust
+  policies, access graphs, and executable tests rather than inferred intent.
 - **Budgets:** agents cannot quietly turn one task into unbounded work.
 - **Obligations:** agents can reason about data handling from a registry.
+- **Trust findings:** agents can inspect access and blast-radius state before
+  recommending rollout or remediation.
 - **Topology:** agents can inspect service wiring instead of guessing.
+- **Stories:** agents can consume bounded operational narratives rather than
+  unstructured logs.
+- **Adoption maps:** agents can discover missing stack artifacts before making
+  invasive changes.
 - **Smoke checks:** agents can verify whether a change is operationally live.
 - **Human gates:** agents can request approval without inventing a workflow.
+- **Authority gates:** agents can use scoped credentials and proofs rather than
+  raw secrets.
+- **Model routing:** agents can lower cost for repeated tasks without bypassing
+  quality checks.
 - **Kill switches:** agents can trigger or recommend emergency paths through
   declared mechanisms rather than shelling into production.
 - **Forensics:** agents can query anomalies, traces, and audit evidence to
@@ -396,9 +602,15 @@ operator can audit.
 
 ### Enforced Today
 
+- Cartographer, Constrain, and Pact exist as public stack tools for discovery,
+  intent capture, and contract-first implementation.
 - Aegis budget behavior is implemented in TS and Python.
 - Covenant contract validation is implemented in TS and Python.
 - Ledger can validate and export Reeve schemas into Baton config.
+- Arbiter, Chronicler, Stigmergy, and Cartographer exist as public stack tools
+  with documented responsibilities.
+- Apprentice and Signet exist as public stack tools for model optimization and
+  authority/credential control.
 - Baton has Reeve smoke/egress config artifacts.
 - Vigil has DB-backed anomaly detection and API/CLI tests.
 - Witness has TS library/server and Python client tests.
@@ -417,6 +629,11 @@ operator can audit.
 - Witness audit integration needs to be wired into Tessera or the chosen audit
   sink.
 - Vigil anomalies need to surface in Reeve's operator dashboard.
+- Arbiter findings, Chronicler stories, Stigmergy patterns, and Cartographer
+  compatibility reports need to be represented in the stack-wide smoke and
+  operator surfaces.
+- Constrain/Pact/Apprentice/Signet integration points need explicit Reeve
+  closeout criteria where they affect production operation.
 
 ### Not Yet Enforced
 
@@ -444,6 +661,10 @@ claiming a fully enforced operational environment.
 | Executable stack-smoke scenario | Blocker for handoff verification | Current `stack-smoke` checks prerequisites and records the target flow. | One command brings up or targets all required components and proves Reeve -> Baton -> Sentinel -> Tessera behavior end to end. |
 | Component version drift reporting | Deferred operational maturity | Released repos exist, but there is no central drift report yet. | Each component exposes `/v1/about` or equivalent; `make stack-versions` reports component version and stack dependency versions, failing on unsupported drift. |
 | Sentinel and Tessera decision records | Documentation debt | Both repos exist and are referenced, but their stack-level ADRs are not normalized with the new component ADR style. | Add ADR-001 files or stable design links that explain why each remains a separate stack component and what integration contract it exposes. |
+| Arbiter/Chronicler/Stigmergy/Cartographer in stack-smoke | Blocker for full Exemplar coverage | These tools are part of Exemplar but were not in the first smoke scaffold. | `stack-smoke` includes at least one assertion each for Arbiter findings, Chronicler story assembly, Stigmergy pattern output, and Cartographer compatibility reporting. |
+| Constrain/Pact adoption path | Deferred build-lifecycle integration | Runtime tooling is documented, but the gold-standard build path should start from Constrain/Pact artifacts. | New Exemplar services have a documented path from Constrain interview -> Pact contracts/tests -> Ledger/Baton/Arbiter artifacts. |
+| Apprentice routing candidates in Reeve | Deferred cost/quality optimization | Reeve has repeated AI tasks, but not all are evaluated for distillation. | Reeve identifies repeatable tasks eligible for Apprentice and defines quality metrics before any local-model routing. |
+| Signet authority integration in Reeve | Blocker for maximal authority hygiene | Reeve has Signet-shaped stubs/boundaries, but stack-level authority policy is not fully expressed in the handoff. | Sensitive Reeve integrations use Signet-scoped credentials/proofs or a documented interim boundary with migration criteria. |
 
 Do not remove this checklist until the acceptance criteria are satisfied. It is
 the operational closeout contract for the next phase.
@@ -473,9 +694,16 @@ The next phase should make composition real:
 2. Back Reeve's operator review queue with Witness.
 3. Wire Scram to real Baton/control-plane dispatch endpoints.
 4. Feed Vigil anomalies into Reeve's operator dashboard.
-5. Promote `stack-smoke` from prerequisite checks to an executable multi-service
+5. Add Cartographer/Constrain/Pact as the expected adoption/build path for new
+   Exemplar services.
+6. Add Arbiter findings, Chronicler stories, Stigmergy patterns, and
+   Cartographer compatibility reports to the stack-wide smoke model.
+7. Identify Apprentice candidates in Reeve and document quality metrics before
+   distillation.
+8. Normalize Signet authority integration for sensitive Reeve actions.
+9. Promote `stack-smoke` from prerequisite checks to an executable multi-service
    scenario.
-6. Add component version reporting and drift checks.
+10. Add component version reporting and drift checks.
 
 When those land, the stack moves from "operationally credible primitives" to
 "operationally enforced environment."
