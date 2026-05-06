@@ -88,7 +88,7 @@ Baton/Sentinel artifacts before a component is fully onboarded.
   `stack-smoke`, and this overview repo are part of the broader Exemplar
   tooling surface.
 - `baton-stack` is deployed on Fly and participates in live stack-smoke via
-  `/api/snapshot`.
+  `/api/snapshot` and `/v1/about`.
 - Reeve is the first production integration host. It is deployed to staging and
   production with smoke checks for liveness, readiness, audit-chain shape,
   stack mode, and registry population.
