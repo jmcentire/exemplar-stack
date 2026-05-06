@@ -33,6 +33,20 @@ The tools are intentionally small and composable. Reeve is the first full
 integration host, but the components are stack-level infrastructure rather than
 Reeve-specific features.
 
+## Proactive Safety Stance
+
+The stack treats safety controls as design inputs, not incident aftermath.
+Absence of a known user harm is not evidence that a guardrail is speculative.
+Vigil, Baton, continuous smoke, Scram, Witness, Tessera, Ledger, Arbiter,
+Chronicler, Stigmergy, Apprentice, Signet, Cartographer, Constrain, Pact,
+Aegis, and Covenant are part of the gold-standard operating environment
+because each closes a distinct failure mode before it becomes customer-visible.
+
+Infrastructure teams should therefore evaluate integrations by whether they
+make an invariant enforceable, observable, auditable, or reversible. A control
+can be phased in by implementation maturity, but it should not be deferred
+until the stack has already produced the harm it was meant to prevent.
+
 ## Current Release Surface
 
 The following repos are the current operational surface from the May 2026
@@ -55,7 +69,7 @@ release pass:
 | `pact` | `v0.14.1` | Contract-first decomposition, executable tests, and agent implementation. |
 | `apprentice` | `v0.3.2` | Model distillation, routing, and quality-gated local inference. |
 | `signet` | public Rust stack | Sovereign vault, credentials, proofs, and agent authority policy. |
-| `stack-smoke` | `v0.1.0` | Cross-component smoke harness scaffold. |
+| `stack-smoke` | `v0.1.1` | Continuous smoke harness with local prerequisite checks, live Reeve smoke checks, and cross-component target flow. |
 | `exemplar-stack` | `v0.1.0+` | Architecture map and coordination docs. |
 | `reeve` | private, deployed | First production integration host. |
 
@@ -624,14 +638,17 @@ operator can audit.
 
 ### Partially Enforced
 
-- `stack-smoke` is still a scaffold for full end-to-end execution.
+- `stack-smoke` has local full-toolchain prerequisite checks, live Reeve smoke
+  endpoint checks, and the documented target flow; full end-to-end execution is
+  still landing.
 - Reeve still needs to migrate imports from private implementations to the
   extracted stack libraries.
 - Scram's V1 dispatchers are intentional stubs pending Baton/control-plane
   endpoints.
 - Witness audit integration needs to be wired into Tessera or the chosen audit
   sink.
-- Vigil anomalies need to surface in Reeve's operator dashboard.
+- Vigil anomalies need to surface in Reeve's operator dashboard as a proactive
+  drift signal.
 - Arbiter findings, Chronicler stories, Stigmergy patterns, and Cartographer
   compatibility reports need to be represented in the stack-wide smoke and
   operator surfaces.
@@ -649,9 +666,10 @@ operator can audit.
 ## Closeout Checklist
 
 These are the remaining items that determine whether the environment is merely
-well-factored or fully buttoned up. The distinction matters: a deferred item is
-known and non-blocking for current operation; a blocker prevents the team from
-claiming a fully enforced operational environment.
+well-factored or fully buttoned up. The distinction matters: an implementation
+phase can be staged, but a safety invariant is not optional just because the
+matching failure has not happened yet. A blocker prevents the team from claiming
+a fully enforced operational environment.
 
 | Item | Status | Why it remains | Acceptance criteria |
 | --- | --- | --- | --- |
@@ -660,13 +678,13 @@ claiming a fully enforced operational environment.
 | Reeve registers Scram conditions | Blocker for emergency composition | Scram V1 is released, but Reeve's kill-condition ownership is not wired. | Reeve-owned conditions are registered: cross-tenant lateral movement, audit-chain integrity break, and emergency read-only on PG down. |
 | Scram dispatchers call real control endpoints | Blocker for emergency enforcement | Scram V1 records dispatch descriptors; cross-stack effects are explicit stubs. | Baton/control-plane endpoints exist for rollback, circuit break, tenant quarantine, global read-only, and process exit/drain; staging drill proves each path. |
 | Witness audit writes to Tessera | Blocker for audit closure | Witness captures rationale, but the stack audit sink is not wired. | Every answered decision writes a Tessera-compatible audit event with decision input, operators, rationale, output, and context hash. |
-| Vigil anomalies surface in Reeve | Deferred operational UX | Vigil can be operated through CLI/API, but operators should see anomalies in their normal dashboard. | Reeve operator dashboard has an anomalies view with filtering, details, and dismiss/escalate actions backed by Vigil. |
-| Executable stack-smoke scenario | Blocker for handoff verification | Current `stack-smoke` checks prerequisites and records the target flow. | One command brings up or targets all required components and proves Reeve -> Baton -> Sentinel -> Tessera behavior end to end. |
-| Component version drift reporting | Deferred operational maturity | Released repos exist, but there is no central drift report yet. | Each component exposes `/v1/about` or equivalent; `make stack-versions` reports component version and stack dependency versions, failing on unsupported drift. |
+| Vigil anomalies surface in Reeve | Blocker for proactive drift visibility | Vigil can be operated through CLI/API, but operators should see anomalies in their normal dashboard before drift becomes an incident. | Reeve operator dashboard has an anomalies view with filtering, details, and dismiss/escalate actions backed by Vigil. |
+| Executable stack-smoke scenario | Blocker for handoff verification | Current `stack-smoke` checks local prerequisites, live Reeve smoke endpoints, and records the target flow. | One command brings up or targets all required components and proves Reeve -> Baton -> Sentinel -> Tessera behavior end to end. |
+| Component version drift reporting | Blocker for composition hygiene | Released repos exist, but there is no central drift report yet. | Each component exposes `/v1/about` or equivalent; `make stack-versions` reports component version and stack dependency versions, failing on unsupported drift. |
 | Sentinel and Tessera decision records | Documentation debt | Both repos exist and are referenced, but their stack-level ADRs are not normalized with the new component ADR style. | Add ADR-001 files or stable design links that explain why each remains a separate stack component and what integration contract it exposes. |
 | Arbiter/Chronicler/Stigmergy/Cartographer in stack-smoke | Blocker for full Exemplar coverage | These tools are part of Exemplar but were not in the first smoke scaffold. | `stack-smoke` includes at least one assertion each for Arbiter findings, Chronicler story assembly, Stigmergy pattern output, and Cartographer compatibility reporting. |
-| Constrain/Pact adoption path | Deferred build-lifecycle integration | Runtime tooling is documented, but the gold-standard build path should start from Constrain/Pact artifacts. | New Exemplar services have a documented path from Constrain interview -> Pact contracts/tests -> Ledger/Baton/Arbiter artifacts. |
-| Apprentice routing candidates in Reeve | Deferred cost/quality optimization | Reeve has repeated AI tasks, but not all are evaluated for distillation. | Reeve identifies repeatable tasks eligible for Apprentice and defines quality metrics before any local-model routing. |
+| Constrain/Pact adoption path | Blocker for gold-standard build lifecycle | Runtime tooling is documented, but the gold-standard build path should start from Constrain/Pact artifacts. | New Exemplar services have a documented path from Constrain interview -> Pact contracts/tests -> Ledger/Baton/Arbiter artifacts. |
+| Apprentice routing candidates in Reeve | Blocker for measured model routing | Reeve has repeated AI tasks, but not all are evaluated for distillation. | Reeve identifies repeatable tasks eligible for Apprentice and defines quality metrics before any local-model routing. |
 | Signet authority integration in Reeve | Blocker for maximal authority hygiene | Reeve has Signet-shaped stubs/boundaries, but stack-level authority policy is not fully expressed in the handoff. | Sensitive Reeve integrations use Signet-scoped credentials/proofs or a documented interim boundary with migration criteria. |
 
 Do not remove this checklist until the acceptance criteria are satisfied. It is

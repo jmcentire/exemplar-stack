@@ -4,6 +4,11 @@ Generated from the local `~/Code` workspace on 2026-05-06. This inventory is
 meant to prevent the Reeve + Exemplar plan from missing load-bearing tools or
 mistaking demos/research repos for production infrastructure.
 
+This inventory uses the proactive safety stance for Reeve: safety, authority,
+audit, anomaly, smoke, and routing controls are planned as guardrails before a
+customer-visible failure proves the need. Implementation can phase by maturity,
+but the controls below are not optional add-ons.
+
 ## Classification Rules
 
 - **Core Exemplar toolchain:** a repo that participates in the lifecycle of an
@@ -45,7 +50,7 @@ gold-standard Exemplar environment.
 | `vigil` | Anomaly detection and forensic query over event streams. | Feed Reeve traces and surface anomalies in operator dashboard. |
 | `scram` | Emergency kill-switch service. | Register Reeve conditions and replace V1 dispatch stubs with Baton/control-plane calls. |
 | `witness` | HITL decisions and two-person approval. | Reeve package references `@stack/witness`; migrate operator review queue and Scram approvals. |
-| `stack-smoke` | Cross-component smoke harness. | Promote from prerequisite checks to executable Reeve -> Baton -> Sentinel -> Tessera flow plus broader tool assertions. |
+| `stack-smoke` | Cross-component and continuous smoke harness. | Local full-toolchain prerequisites and live Reeve smoke checks exist; next step is executable Reeve -> Baton -> Sentinel -> Tessera flow plus broader tool assertions. |
 | `exemplar-stack` | Architecture, catalog, and handoff docs. | Source of truth for the integration plan and closeout criteria. |
 
 ## Reeve Integration Host
@@ -135,8 +140,8 @@ following as closeout criteria:
    Ledger-derived egress config, and Arbiter receives observed behavior for
    trust/blast-radius findings.
 4. **Event learning loop:** Reeve emits traces/events into Chronicler; stories
-   feed Vigil for anomalies and Stigmergy/Apprentice for pattern learning and
-   repeatable-task optimization.
+   feed Vigil for proactive anomaly detection and Stigmergy/Apprentice for
+   pattern learning and repeatable-task optimization.
 5. **Authority and HITL:** Reeve sensitive actions use Signet-scoped
    credentials/proofs and Witness approval where policy requires human or
    two-person gates.
@@ -144,10 +149,11 @@ following as closeout criteria:
    call real Baton/control-plane endpoints.
 7. **Evidence:** Witness, Scram, alarms, and operator decisions write
    Tessera-compatible audit evidence.
-8. **Verification:** `stack-smoke` proves a real Reeve -> Baton -> Sentinel ->
-   Tessera path and includes assertions for Arbiter, Chronicler, Stigmergy,
-   Cartographer, Signet, Apprentice, Aegis, Covenant, Vigil, Scram, and Witness
-   where each has an operational contract.
+8. **Verification:** `stack-smoke` continuously checks local stack prerequisites
+   and live Reeve smoke endpoints today, then proves a real Reeve -> Baton ->
+   Sentinel -> Tessera path and includes assertions for Arbiter, Chronicler,
+   Stigmergy, Cartographer, Signet, Apprentice, Aegis, Covenant, Vigil, Scram,
+   and Witness where each has an operational contract.
 
 ## Consistency Check
 

@@ -5,6 +5,11 @@ automation in small-business operator workflows. Reeve currently contains
 first implementations of some stack disciplines, but those disciplines are
 stack components, not Reeve features.
 
+The integration stance is proactive: safety, routing, anomaly, authority,
+audit, and smoke controls are wired before a customer-visible failure proves
+the need. Implementation can phase by maturity, but these controls are part of
+the gold-standard operating environment.
+
 For an infrastructure-team handoff that explains the operational invariants,
 composition paths, failure semantics, and capability introduced by the tool
 suite, read [docs/infrastructure-handoff.md](docs/infrastructure-handoff.md).
@@ -71,7 +76,7 @@ Baton/Sentinel artifacts before a component is fully onboarded.
   consumers such as Vigil, Stigmergy, and Apprentice.
 - Use Cartographer during adoption and CI compatibility checks to discover
   missing stack artifacts before runtime.
-- Keep stack-wide smoke assertions in `~/Code/stack-smoke`.
+- Keep stack-wide and continuous smoke assertions in `~/Code/stack-smoke`.
 - Keep Reeve-specific migrations to extracted libraries in Wave 3, after
   component ADRs and skeletons land.
 
@@ -87,4 +92,5 @@ Baton/Sentinel artifacts before a component is fully onboarded.
   stack mode, and registry population.
 - The next phase is composition: migrate Reeve to consume the extracted
   libraries, make Scram dispatchers real, surface Vigil in the operator
-  dashboard, and promote `stack-smoke` into a full multi-service scenario.
+  dashboard, keep continuous smoke running, and promote `stack-smoke` into a
+  full multi-service scenario.
