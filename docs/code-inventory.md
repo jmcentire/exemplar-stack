@@ -38,7 +38,7 @@ gold-standard Exemplar environment.
 | `pact` | Contract-first decomposition, executable tests, and agent implementation. | Use for new multi-component Reeve work where boundaries matter. |
 | `ledger` | Data classification and obligation registry. | Already wired through Reeve `ledger-publish` and Baton egress export. |
 | `arbiter` | Access auditing, consistency analysis, trust scoring, blast-radius findings. | Add to stack-smoke and Reeve operator surfaces; currently not fully represented in Reeve runtime. |
-| `baton` | Circuit/adapters/routing/canaries/taint scanning. | Reeve smoke and egress configs exist; next step is live adapter consumption. |
+| `baton` | Circuit/adapters/routing/canaries/taint scanning. | Reeve smoke and egress configs exist; `baton-stack` is deployed for live snapshot smoke; next step is live adapter consumption. |
 | `sentinel` | PACT-key attribution and enforcement severity. | Reeve includes Sentinel observability hooks; stack-smoke needs an end-to-end attribution assertion. |
 | `tessera` | Tamper-evident executable document/evidence format. | Reeve audit-chain shape exists; Witness/Scram audit writes need Tessera integration. |
 | `chronicler` | Correlates logs, spans, webhooks, and incidents into stories. | Reeve has local chronicler-shaped correlation; sidecar integration remains a closeout item. |
@@ -50,7 +50,7 @@ gold-standard Exemplar environment.
 | `vigil` | Anomaly detection and forensic query over event streams. | Feed Reeve traces and surface anomalies in operator dashboard. |
 | `scram` | Emergency kill-switch service. | Register Reeve conditions and replace V1 dispatch stubs with Baton/control-plane calls. |
 | `witness` | HITL decisions and two-person approval. | Reeve package references `@stack/witness`; migrate operator review queue and Scram approvals. |
-| `stack-smoke` | Cross-component and continuous smoke harness. | Local full-toolchain prerequisites and live Reeve smoke checks exist; next step is executable Reeve -> Baton -> Sentinel -> Tessera flow plus broader tool assertions. |
+| `stack-smoke` | Cross-component and continuous smoke harness. | Local full-toolchain prerequisites plus live Reeve and Baton checks exist; next step is executable Reeve -> Baton -> Sentinel -> Tessera flow plus broader tool assertions. |
 | `exemplar-stack` | Architecture, catalog, and handoff docs. | Source of truth for the integration plan and closeout criteria. |
 
 ## Reeve Integration Host
@@ -150,8 +150,8 @@ following as closeout criteria:
 7. **Evidence:** Witness, Scram, alarms, and operator decisions write
    Tessera-compatible audit evidence.
 8. **Verification:** `stack-smoke` continuously checks local stack prerequisites
-   and live Reeve smoke endpoints today, then proves a real Reeve -> Baton ->
-   Sentinel -> Tessera path and includes assertions for Arbiter, Chronicler,
+   plus live Reeve and Baton endpoints today, then proves a real Reeve -> Baton
+   -> Sentinel -> Tessera path and includes assertions for Arbiter, Chronicler,
    Stigmergy, Cartographer, Signet, Apprentice, Aegis, Covenant, Vigil, Scram,
    and Witness where each has an operational contract.
 

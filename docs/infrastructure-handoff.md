@@ -59,7 +59,7 @@ release pass:
 | `vigil` | `v0.1.0` | Off-path anomaly detection and forensic query. |
 | `scram` | `v0.1.0` | Emergency kill-switch registry, evaluator, API, CLI, and read-only override. |
 | `witness` | `v0.1.0` | Human-in-the-loop decisions and two-person approval. |
-| `baton` | `v0.3.3` | Circuit orchestration, adapter control, taint scanning, canary routing. |
+| `baton` | `v0.3.4`, deployed `baton-stack` | Circuit orchestration, adapter control, taint scanning, canary routing. |
 | `ledger` | `v0.2.2` | Schema registry and data obligation manager. |
 | `arbiter` | `v0.2.1` | Access auditing, consistency analysis, blast-radius classification, and trust enforcement. |
 | `chronicler` | `v0.3.0` | Event collection and story assembly from operational signals. |
@@ -69,12 +69,14 @@ release pass:
 | `pact` | `v0.14.1` | Contract-first decomposition, executable tests, and agent implementation. |
 | `apprentice` | `v0.3.2` | Model distillation, routing, and quality-gated local inference. |
 | `signet` | public Rust stack | Sovereign vault, credentials, proofs, and agent authority policy. |
-| `stack-smoke` | `v0.1.1` | Continuous smoke harness with local prerequisite checks, live Reeve smoke checks, and cross-component target flow. |
+| `stack-smoke` | `v0.1.2` | Continuous smoke harness with local prerequisite checks, live Reeve/Baton smoke checks, and cross-component target flow. |
 | `exemplar-stack` | `v0.1.0+` | Architecture map and coordination docs. |
 | `reeve` | private, deployed | First production integration host. |
 
 Reeve is currently deployed to staging and production with live smoke checks for
 liveness, readiness, audit-chain shape, stack mode, and registry population.
+Baton is deployed as the `baton-stack` Fly app and exposes `/api/snapshot` for
+continuous smoke.
 
 ## Component Responsibilities
 
@@ -628,7 +630,8 @@ operator can audit.
   with documented responsibilities.
 - Apprentice and Signet exist as public stack tools for model optimization and
   authority/credential control.
-- Baton has Reeve smoke/egress config artifacts.
+- Baton has Reeve smoke/egress config artifacts and a deployed Fly dashboard
+  surface at `https://baton-stack.fly.dev/api/snapshot`.
 - Vigil has DB-backed anomaly detection and API/CLI tests.
 - Witness has TS library/server and Python client tests.
 - Scram has registry, evaluator, API, CLI, boot-only read-only override, and
@@ -638,7 +641,7 @@ operator can audit.
 
 ### Partially Enforced
 
-- `stack-smoke` has local full-toolchain prerequisite checks, live Reeve smoke
+- `stack-smoke` has local full-toolchain prerequisite checks, live Reeve/Baton
   endpoint checks, and the documented target flow; full end-to-end execution is
   still landing.
 - Reeve still needs to migrate imports from private implementations to the
@@ -679,7 +682,7 @@ a fully enforced operational environment.
 | Scram dispatchers call real control endpoints | Blocker for emergency enforcement | Scram V1 records dispatch descriptors; cross-stack effects are explicit stubs. | Baton/control-plane endpoints exist for rollback, circuit break, tenant quarantine, global read-only, and process exit/drain; staging drill proves each path. |
 | Witness audit writes to Tessera | Blocker for audit closure | Witness captures rationale, but the stack audit sink is not wired. | Every answered decision writes a Tessera-compatible audit event with decision input, operators, rationale, output, and context hash. |
 | Vigil anomalies surface in Reeve | Blocker for proactive drift visibility | Vigil can be operated through CLI/API, but operators should see anomalies in their normal dashboard before drift becomes an incident. | Reeve operator dashboard has an anomalies view with filtering, details, and dismiss/escalate actions backed by Vigil. |
-| Executable stack-smoke scenario | Blocker for handoff verification | Current `stack-smoke` checks local prerequisites, live Reeve smoke endpoints, and records the target flow. | One command brings up or targets all required components and proves Reeve -> Baton -> Sentinel -> Tessera behavior end to end. |
+| Executable stack-smoke scenario | Blocker for handoff verification | Current `stack-smoke` checks local prerequisites, live Reeve smoke endpoints, live Baton snapshot, and records the target flow. | One command brings up or targets all required components and proves Reeve -> Baton -> Sentinel -> Tessera behavior end to end. |
 | Component version drift reporting | Blocker for composition hygiene | Released repos exist, but there is no central drift report yet. | Each component exposes `/v1/about` or equivalent; `make stack-versions` reports component version and stack dependency versions, failing on unsupported drift. |
 | Sentinel and Tessera decision records | Documentation debt | Both repos exist and are referenced, but their stack-level ADRs are not normalized with the new component ADR style. | Add ADR-001 files or stable design links that explain why each remains a separate stack component and what integration contract it exposes. |
 | Arbiter/Chronicler/Stigmergy/Cartographer in stack-smoke | Blocker for full Exemplar coverage | These tools are part of Exemplar but were not in the first smoke scaffold. | `stack-smoke` includes at least one assertion each for Arbiter findings, Chronicler story assembly, Stigmergy pattern output, and Cartographer compatibility reporting. |
