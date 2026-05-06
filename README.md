@@ -8,6 +8,9 @@ stack components, not Reeve features.
 For an infrastructure-team handoff that explains the operational invariants,
 composition paths, failure semantics, and capability introduced by the tool
 suite, read [docs/infrastructure-handoff.md](docs/infrastructure-handoff.md).
+For the local `~/Code` inventory that separates core Exemplar tools from
+supporting, adjacent, research, and non-tool repos, read
+[docs/code-inventory.md](docs/code-inventory.md).
 
 ## Component Map
 
