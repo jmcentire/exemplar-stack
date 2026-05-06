@@ -16,8 +16,8 @@ suite, read [docs/infrastructure-handoff.md](docs/infrastructure-handoff.md).
 | Reeve | TypeScript | Operator-facing business automation and first integration host. | Operators, Baton, Tessera | `~/Code/reeve/docs/stack-roadmap.md` |
 | Baton | Python | Circuit orchestration, adapter control, taint scanning, canary routing. | Reeve, stack-smoke | `~/Code/baton/CLAUDE.md` |
 | Ledger | Python | Field classification and obligation registry. | Baton, Reeve, Sentinel | `~/Code/ledger/CLAUDE.md` |
-| Sentinel | Python | PACT-key attribution and enforcement severity. | Baton, Reeve | TBD |
-| Tessera | TBD | Append-only audit evidence and hash-chain integrity. | Reeve, scram, witness | TBD |
+| Sentinel | Python | PACT-key attribution and enforcement severity. | Baton, Reeve | `~/Code/sentinel/design.md` |
+| Tessera | Rust | Self-validating executable document and hash-chain evidence format. | Reeve, scram, witness | `~/Code/tessera/README.md` |
 | aegis | TypeScript + Python | Hot-path resource budgets and egress wrappers with golden vectors plus differential fuzzing. | Reeve, Baton | `~/Code/aegis/ADR-001-extraction.md` |
 | covenant | TypeScript + Python | Zod-canonical contracts exported to committed JSON Schema for Python consumers. | Reeve, Baton, Ledger, Sentinel | `~/Code/covenant/ADR-001-extraction.md` |
 | vigil | Python | Off-path anomaly detection using rolling quantile baselines over stack event streams. | Baton, Reeve dashboard | `~/Code/vigil/ADR-001-extraction.md` |

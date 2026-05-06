@@ -426,6 +426,28 @@ operator can audit.
 - Reeve registering Scram conditions from its TypeScript runtime.
 - Full component version drift reporting across `/v1/about` endpoints.
 
+## Closeout Checklist
+
+These are the remaining items that determine whether the environment is merely
+well-factored or fully buttoned up. The distinction matters: a deferred item is
+known and non-blocking for current operation; a blocker prevents the team from
+claiming a fully enforced operational environment.
+
+| Item | Status | Why it remains | Acceptance criteria |
+| --- | --- | --- | --- |
+| Reeve consumes extracted Aegis/Covenant | Blocker for composition | Reeve still carries private first implementations for some paths. | Reeve imports `@stack/aegis` and `@stack/covenant`; private modules are removed; existing Reeve tests pass with no behavioral drift. |
+| Reeve review queue uses Witness | Blocker for human-governance composition | Witness is released, but Reeve still owns its ad-hoc review queue. | `flag_for_human_review` writes through Witness; operator inbox reads open Witness decisions; two-person policy can be configured by decision kind. |
+| Reeve registers Scram conditions | Blocker for emergency composition | Scram V1 is released, but Reeve's kill-condition ownership is not wired. | Reeve-owned conditions are registered: cross-tenant lateral movement, audit-chain integrity break, and emergency read-only on PG down. |
+| Scram dispatchers call real control endpoints | Blocker for emergency enforcement | Scram V1 records dispatch descriptors; cross-stack effects are explicit stubs. | Baton/control-plane endpoints exist for rollback, circuit break, tenant quarantine, global read-only, and process exit/drain; staging drill proves each path. |
+| Witness audit writes to Tessera | Blocker for audit closure | Witness captures rationale, but the stack audit sink is not wired. | Every answered decision writes a Tessera-compatible audit event with decision input, operators, rationale, output, and context hash. |
+| Vigil anomalies surface in Reeve | Deferred operational UX | Vigil can be operated through CLI/API, but operators should see anomalies in their normal dashboard. | Reeve operator dashboard has an anomalies view with filtering, details, and dismiss/escalate actions backed by Vigil. |
+| Executable stack-smoke scenario | Blocker for handoff verification | Current `stack-smoke` checks prerequisites and records the target flow. | One command brings up or targets all required components and proves Reeve -> Baton -> Sentinel -> Tessera behavior end to end. |
+| Component version drift reporting | Deferred operational maturity | Released repos exist, but there is no central drift report yet. | Each component exposes `/v1/about` or equivalent; `make stack-versions` reports component version and stack dependency versions, failing on unsupported drift. |
+| Sentinel and Tessera decision records | Documentation debt | Both repos exist and are referenced, but their stack-level ADRs are not normalized with the new component ADR style. | Add ADR-001 files or stable design links that explain why each remains a separate stack component and what integration contract it exposes. |
+
+Do not remove this checklist until the acceptance criteria are satisfied. It is
+the operational closeout contract for the next phase.
+
 ## Operating Guidance for Infrastructure Teams
 
 1. **Treat docs as secondary to gates.** If a rule matters, wire it into
