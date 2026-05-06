@@ -5,6 +5,10 @@ automation in small-business operator workflows. Reeve currently contains
 first implementations of some stack disciplines, but those disciplines are
 stack components, not Reeve features.
 
+For an infrastructure-team handoff that explains the operational invariants,
+composition paths, failure semantics, and capability introduced by the tool
+suite, read [docs/infrastructure-handoff.md](docs/infrastructure-handoff.md).
+
 ## Component Map
 
 | Component | Language | Charter | Primary consumers | ADR |
@@ -45,26 +49,15 @@ Reeve ──emits events──> Baton ──taint/attribution──> Sentinel
 - Keep Reeve-specific migrations to extracted libraries in Wave 3, after
   component ADRs and skeletons land.
 
-## Current Work Split
+## Current Status
 
-- Track 1: aegis, covenant, and vigil ADRs are locked on disk.
-- Track 2: scram and witness after Track 1 contracts stabilize.
-- Track 3: Reeve ledger publish, Baton Reeve smoke/canary config,
-  stack-smoke scaffold, and this stack overview.
-
-The track/wave language is temporary project coordination: Track 1 extracts
-shared architecture components, Track 2 builds emergency/human coordination
-components, and Track 3 wires operational integration. Wave 3 is where Reeve
-migrates to the extracted libraries after their ADRs and skeletons land.
-
-## Track 1 Status
-
-- `~/Code/aegis/ADR-001-extraction.md` is locked. The implementation derives
-  from Reeve's working private module at `~/Code/reeve/src/observability/aegis/`.
-  The standalone repo is not git-initialized yet.
-- `~/Code/covenant/ADR-001-extraction.md` is locked. The implementation derives
-  from Reeve's working private Zod-native module at `~/Code/reeve/src/covenant/`.
-  The standalone repo is not git-initialized yet.
-- `~/Code/vigil/ADR-001-extraction.md` is locked. The implementation is net-new;
-  Reeve's `src/tracing/` is an input source, not a private vigil implementation.
-  The standalone repo is not git-initialized yet.
+- `aegis`, `covenant`, `vigil`, `scram`, and `witness` are standalone public
+  repos with `v0.1.0` releases.
+- `baton`, `ledger`, `stack-smoke`, and this overview repo have release tags
+  from the operational-maturity pass.
+- Reeve is the first production integration host. It is deployed to staging and
+  production with smoke checks for liveness, readiness, audit-chain shape,
+  stack mode, and registry population.
+- The next phase is composition: migrate Reeve to consume the extracted
+  libraries, make Scram dispatchers real, surface Vigil in the operator
+  dashboard, and promote `stack-smoke` into a full multi-service scenario.
