@@ -1,0 +1,15 @@
+{
+  "version": "1.0.0",
+  "project": {
+    "name": "exemplar-stack",
+    "description": "Code map exported from Kindex for exemplar-stack.",
+    "languages": [],
+    "frameworks": [],
+    "analyzedAt": "2026-05-24T14:56:01",
+    "gitCommitHash": "9a60f87ac95a7ec08230b662c34bfaefb8c3da2c"
+  },
+  "nodes": [],
+  "edges": [],
+  "layers": [],
+  "tour": []
+}
